@@ -116,6 +116,11 @@ class Piloto {
         this.nombre = nombre;
     }
     
+    // ✅ GETTER AÑADIDO
+    public getNombre(): string {
+        return this.nombre;
+    }
+    
     asignarAeroplano(aeroplano: Aeroplano): void {
         this.aeroplanoAsignado = aeroplano;
         console.log(`${this.nombre} asignado al aeroplano`);
@@ -155,13 +160,13 @@ class Hangar {
     }
 }
 
-// ============ CLASE AEROPLANO MODIFICADA (CON ASOCIACIONES ADICIONALES) ============
+// ============ CLASE AEROPLANO MODIFICADA ============
 class Aeroplano {
     private helice: Helice;
     private trenAterrizaje: TrendeAterrizaje;
     private alas: Alas;
     private cubierta: Cubierta;
-    private piloto?: Piloto; // Nueva asociación
+    private piloto?: Piloto;
     
     constructor(phelice: Helice, pTrenAterrizaje: TrendeAterrizaje, pAlas: Alas, pCubierta: Cubierta) {
         this.helice = phelice;
@@ -170,7 +175,6 @@ class Aeroplano {
         this.cubierta = pCubierta;
     }
     
-    // Nuevo método para asignar piloto
     asignarPiloto(piloto: Piloto): void {
         this.piloto = piloto;
         piloto.asignarAeroplano(this);
@@ -183,43 +187,13 @@ class Aeroplano {
         mensaje += this.trenAterrizaje.ToString();
         mensaje += this.cubierta.ToString();
         if (this.piloto) {
-            mensaje += ` | Piloto: ${this.piloto['nombre']}`;
+            mensaje += ` | Piloto: ${this.piloto.getNombre()}`;  // ✅ CORREGIDO
         }
         return mensaje;
     }
 }
 
-// ============ DEMOSTRACIÓN CON TODAS LAS RELACIONES ============
-console.log("=== DEMOSTRACIÓN DE LAS 5 RELACIONES ===\n");
-
-// Crear componentes (como en tu código original)
-let helice = new Helice(3);
-let trenAterrizaje = new TrendeAterrizaje(2, 3, true);
-let alas = new Alas(2, 3);
-let cubierta = new Cubierta(true, true, true, 4, 4);
-
-// 1. AGREGACIÓN - Aeroplano contiene componentes
-let aeroplano = new Aeroplano(helice, trenAterrizaje, alas, cubierta);
-console.log("✓ AGREGACIÓN: " + aeroplano.ToString());
-
-// 2. ASOCIACIÓN - Piloto con Aeroplano
-let piloto = new Piloto("Capitán Pérez");
-aeroplano.asignarPiloto(piloto);
-console.log("✓ ASOCIACIÓN: " + piloto.volar());
-
-// 3. DEPENDENCIA - Servicio usa Helice temporalmente
-let servicio = new ServicioMantenimiento();
-console.log("✓ DEPENDENCIA: " + servicio.revisarHelice(helice));
-
-// 4. AGREGACIÓN (colección) - Hangar contiene aeroplanos
-let hangar = new Hangar("Principal");
-hangar.agregarAeroplano(aeroplano);
-hangar.listarAeroplanos();
-
-// 5. HERENCIA - AeroplanoDeCarga es un VehiculoAereo
-let avionCarga = new AeroplanoDeCarga("Boeing 747F", 80);
-console.log("✓ HERENCIA: " + avionCarga.despegar());
-// ============ COMPOSICIÓN (relación fuerte) ============
+// ============ COMPOSICIÓN ============
 class AlaInterna {
     private tipo: string;
     
@@ -233,10 +207,9 @@ class AlaInterna {
 }
 
 class AlaCompuesta {
-    private alas: AlaInterna[] = []; // COMPOSICIÓN - las alas internas NO existen sin AlaCompuesta
+    private alas: AlaInterna[] = [];
     
     constructor(numAlas: number) {
-        // COMPOSICIÓN: Los objetos se crean DENTRO del constructor
         for (let i = 1; i <= numAlas; i++) {
             this.alas.push(new AlaInterna(`Secundaria ${i}`));
         }
@@ -248,16 +221,14 @@ class AlaCompuesta {
     }
 }
 
-// Modificar la clase Alas para usar composición (opcional)
 class AlasConComposicion {
     private numAlasFrente: number = 0;
     private numAlasCola: number = 0;
-    private estructuraInterna: AlaCompuesta; // COMPOSICIÓN
+    private estructuraInterna: AlaCompuesta;
     
     public constructor(mAlasFrente: number, nAlasCola: number) {
         this.numAlasFrente = mAlasFrente;
         this.numAlasCola = nAlasCola;
-        // COMPOSICIÓN: se crea dentro del constructor
         this.estructuraInterna = new AlaCompuesta(mAlasFrente + nAlasCola);
     }
     
@@ -265,15 +236,35 @@ class AlasConComposicion {
         return `Alas Frontales: ${this.numAlasFrente}, Posteriores: ${this.numAlasCola} | ${this.estructuraInterna.getInfo()}`;
     }
 }
-// ============ DEMOSTRACIÓN DE COMPOSICIÓN ============
+
+// ============ DEMOSTRACIÓN ============
+console.log("=== DEMOSTRACIÓN DE LAS 5 RELACIONES ===\n");
+
+let helice = new Helice(3);
+let trenAterrizaje = new TrendeAterrizaje(2, 3, true);
+let alas = new Alas(2, 3);
+let cubierta = new Cubierta(true, true, true, 4, 4);
+
+let aeroplano = new Aeroplano(helice, trenAterrizaje, alas, cubierta);
+console.log("✓ AGREGACIÓN: " + aeroplano.ToString());
+
+let piloto = new Piloto("Capitán Pérez");
+aeroplano.asignarPiloto(piloto);
+console.log("✓ ASOCIACIÓN: " + piloto.volar());
+
+let servicio = new ServicioMantenimiento();
+console.log("✓ DEPENDENCIA: " + servicio.revisarHelice(helice));
+
+let hangar = new Hangar("Principal");
+hangar.agregarAeroplano(aeroplano);
+hangar.listarAeroplanos();
+
+let avionCarga = new AeroplanoDeCarga("Boeing 747F", 80);
+console.log("✓ HERENCIA: " + avionCarga.despegar());
+
 console.log("\n--- DEMOSTRACIÓN DE COMPOSICIÓN ---");
 let alasCompuestas = new AlasConComposicion(2, 3);
-console.log("COMPOSICIÓN: " + alasCompuestas.ToString());
-// NOTA: Las alas internas NO pueden existir sin AlaCompuesta
+console.log("✓ COMPOSICIÓN: " + alasCompuestas.ToString());
 
-console.log("\n=== RESUMEN DE RELACIONES ===");
-console.log("1. AGREGACIÓN: Aeroplano → Helice, Alas, etc.");
-console.log("2. ASOCIACIÓN: Piloto ↔ Aeroplano");
-console.log("3. DEPENDENCIA: ServicioMantenimiento → Helice");
-console.log("4. HERENCIA: AeroplanoDeCarga → VehiculoAereo");
-console.log("5. COMPOSICIÓN: AlaConComposicion → AlaCompuesta → AlaInterna ✓ IMPLEMENTADA");
+console.log("\n=== RESUMEN ===");
+console.log("TODAS LAS RELACIONES IMPLEMENTADAS CORRECTAMENTE ✅");

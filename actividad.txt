@@ -9,3 +9,6 @@ Aeroplano ---> Cubierta
 2. Asociación simple (Association)
 
 Las clases están conectadas pero no hay dependencia de ciclo de vida
+
+-- Comando ejecutable 
+npx ts-node trabajo_version2.ts

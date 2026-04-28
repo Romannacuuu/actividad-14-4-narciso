@@ -1,0 +1,67 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRUD Aeroplano</title>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .container { display: flex; gap: 20px; }
+        .form { flex: 1; border: 1px solid #ccc; padding: 20px; }
+        .list { flex: 2; border: 1px solid #ccc; padding: 20px; }
+        input, button { margin: 5px; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>CRUD de Aeroplanos</h1>
+    <div class="container">
+        <div class="form">
+            <h2>Crear Aeroplano</h2>
+            <input type="text" id="modelo" placeholder="Modelo"><br>
+            <input type="number" id="helice" placeholder="Hélices"><br>
+            <input type="number" id="neumaticos" placeholder="Neumáticos"><br>
+            <button onclick="crearAeroplano()">Crear</button>
+        </div>
+        <div class="list">
+            <h2>Lista de Aeroplanos</h2>
+            <div id="lista"></div>
+        </div>
+    </div>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        
+        async function crearAeroplano() {
+            const data = {
+                modelo: document.getElementById('modelo').value,
+                numHelices: parseInt(document.getElementById('helice').value),
+                numNeumaticos: parseInt(document.getElementById('neumaticos').value),
+                numAmortiguadores: 4,
+                fijoRetractil: true,
+                alasFrente: 2,
+                alasCola: 2,
+                cabinaTripulacion: true,
+                cabinaVuelo: true,
+                sistemaEmergencia: true,
+                tanquesCombustible: 4,
+                puertasSalida: 4
+            };
+            
+            await fetch(`${API_URL}/aeroplanos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            cargarAeroplanos();
+        }
+        
+        async function cargarAeroplanos() {
+            const res = await fetch(`${API_URL}/aeroplanos`);
+            const aeroplanos = await res.json();
+            document.getElementById('lista').innerHTML = aeroplanos.map(a => 
+                `<div>${a.modelo} - ${a.helice}</div>`
+            ).join('');
+        }
+        
+        cargarAeroplanos();
+    </script>
+</body>
+</html>
